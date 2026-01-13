@@ -1,0 +1,11 @@
+python-telegram-bot==20.7
+requests
+python-dotenv
+Pillow
+pyfiglet==0.8.1
+python-dotenv==1.0.0
+requests==2.31.0
+sqlite3
+asyncio
+datetime
+logging

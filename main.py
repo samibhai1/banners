@@ -3,11 +3,12 @@
 Karwa Banner Generator - Professional Telegram Bot
 Main entry point for the bot application
 """
-
 import os
 import sys
 import logging
 from dotenv import load_dotenv
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from threading import Thread
 
 # Load environment variables
 load_dotenv()
@@ -41,6 +42,28 @@ def main():
     
     logger = logging.getLogger(__name__)
     logger.info("Starting Karwa Banner Generator Bot...")
+    
+    # Start health check server for Render
+    PORT = int(os.environ.get('PORT', 10000))
+    
+    class HealthHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'Bot is running!')
+        
+        def log_message(self, format, *args):
+            pass  # Suppress logs
+    
+    def run_health_server():
+        server = HTTPServer(('0.0.0.0', PORT), HealthHandler)
+        server.serve_forever()
+    
+    # Start health server in background thread
+    health_thread = Thread(target=run_health_server, daemon=True)
+    health_thread.start()
+    logger.info(f"Health check server running on port {PORT}")
     
     try:
         # Create and run bot
